@@ -33,7 +33,7 @@ app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
-    origin: 'https://super-pika-1d42bc.netlify.app/',
+    origin: 'https://super-pika-1d42bc.netlify.app',
     credentials: true,
 }));
 app.use('/css', express.static(path.join(__dirname, 'css')));
