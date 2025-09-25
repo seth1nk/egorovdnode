@@ -19,7 +19,7 @@ html {
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0d9488, #1e40af) !important; /* Сине-зеленый градиент */
+    background: linear-gradient(135deg, #adee45, #6932ce) !important; /* Сине-зеленый градиент */
     color: #e0e0e0 !important; /* Светло-серый текст */
     min-height: 100vh;
     display: flex;

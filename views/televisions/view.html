@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр телевизора</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Просмотр телевизора</h1>
+            <div class="container">
+                <div class="product-info">
+                    <div class="product-image-container" id="product-image"></div>
+                    <div class="info-container">
+                        <p><strong>Название модели:</strong> <span id="name"></span></p>
+                        <p><strong>Описание:</strong> <span id="description"></span></p>
+                        <p><strong>Бренд:</strong> <span id="brand"></span></p>
+                        <p><strong>Тип экрана:</strong> <span id="screenType"></span></p>
+                        <p><strong>Год выпуска:</strong> <span id="releaseYear"></span></p>
+                        <p><strong>В наличии:</strong> <span id="isInStock"></span></p>
+                        <p><strong>Цена:</strong> <span id="price"></span></p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/televisions/index.html" class="btn-secondary">Вернуться к списку</a>
+                    <a id="edit-link" class="btn-primary">Редактировать</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        async function loadTelevisionData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const televisionId = urlParams.get('id');
+                if (!televisionId) {
+                    throw new Error('ID телевизора не указан');
+                }
+                const response = await fetch(`/api/view-television/${televisionId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const television = await response.json();
+                document.getElementById('product-image').innerHTML = television.photo ? `<img class="product-image" src="${television.photo.replace('/img/', '/images/')}" alt="Television Photo">` : 'Нет изображения';
+                document.getElementById('name').textContent = television.name || 'N/A';
+                document.getElementById('description').textContent = television.description || 'N/A';
+                document.getElementById('brand').textContent = television.brand || 'N/A';
+                document.getElementById('screenType').textContent = television.screenType || 'N/A';
+                document.getElementById('releaseYear').textContent = television.releaseYear || 'N/A';
+                document.getElementById('isInStock').textContent = television.isInStock ? 'Да' : 'Нет';
+                document.getElementById('price').textContent = television.price || 'N/A';
+                document.getElementById('edit-link').href = `/televisions/edit.html?id=${television.id}`;
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('content').innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
+            }
+        }
+        window.onload = loadTelevisionData;
+    </script>
+</body>
+</html>

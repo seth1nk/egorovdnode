@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать продажу</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Редактировать продажу</h1>
+            <form class="form-container" id="edit-form" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="customerName">Имя клиента:</label>
+                    <input id="customerName" class="form-input" type="text" name="customerName" required>
+                </div>
+                <div class="input-group">
+                    <label for="notes">Комментарий к заказу:</label>
+                    <textarea id="notes" class="form-input" name="notes"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="deliveryAddress">Адрес доставки:</label>
+                    <input id="deliveryAddress" class="form-input" type="text" name="deliveryAddress">
+                </div>
+                <div class="input-group">
+                    <label for="paymentMethod">Способ оплаты:</label>
+                    <input id="paymentMethod" class="form-input" type="text" name="paymentMethod">
+                </div>
+                <div class="input-group">
+                    <label for="saleYear">Год продажи:</label>
+                    <input id="saleYear" class="form-input" type="number" name="saleYear">
+                </div>
+                <div class="input-group">
+                    <label for="isConfirmed">Подтверждена:</label>
+                    <input id="isConfirmed" class="form-input" type="checkbox" name="isConfirmed" value="true">
+                </div>
+                <div class="input-group">
+                    <label for="orderNumber">Номер заказа:</label>
+                    <input id="orderNumber" class="form-input" type="text" name="orderNumber">
+                </div>
+                <div class="input-group">
+                    <label for="photo">Изображение:</label>
+                    <input id="photo" class="form-input" type="file" name="photo" accept="image/*">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" type="submit">Сохранить изменения</button>
+                    <a href="/sales/index.html" class="btn-secondary">Вернуться к списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        async function loadSaleData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const saleId = urlParams.get('id');
+                if (!saleId) {
+                    throw new Error('ID продажи не указан');
+                }
+                document.getElementById('edit-form').action = `/edit-sale/${saleId}`;
+                const response = await fetch(`/api/view-sale/${saleId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const sale = await response.json();
+                document.getElementById('customerName').value = sale.customerName || '';
+                document.getElementById('notes').value = sale.notes || '';
+                document.getElementById('deliveryAddress').value = sale.deliveryAddress || '';
+                document.getElementById('paymentMethod').value = sale.paymentMethod || '';
+                document.getElementById('saleYear').value = sale.saleYear || '';
+                document.getElementById('isConfirmed').checked = sale.isConfirmed || false;
+                document.getElementById('orderNumber').value = sale.orderNumber || '';
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('content').innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
+            }
+        }
+        window.onload = loadSaleData;
+    </script>
+</body>
+</html>

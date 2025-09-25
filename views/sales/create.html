@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить продажу</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Добавить новую продажу</h1>
+            <form class="form-container" id="create-form" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="customerName">Имя клиента:</label>
+                    <input id="customerName" class="form-input" type="text" name="customerName" required>
+                </div>
+                <div class="input-group">
+                    <label for="notes">Комментарий к заказу:</label>
+                    <textarea id="notes" class="form-input" name="notes"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="deliveryAddress">Адрес доставки:</label>
+                    <input id="deliveryAddress" class="form-input" type="text" name="deliveryAddress">
+                </div>
+                <div class="input-group">
+                    <label for="paymentMethod">Способ оплаты:</label>
+                    <input id="paymentMethod" class="form-input" type="text" name="paymentMethod">
+                </div>
+                <div class="input-group">
+                    <label for="saleYear">Год продажи:</label>
+                    <input id="saleYear" class="form-input" type="number" name="saleYear">
+                </div>
+                <div class="input-group">
+                    <label for="isConfirmed">Подтверждена:</label>
+                    <input id="isConfirmed" class="form-input" type="checkbox" name="isConfirmed" value="true">
+                </div>
+                <div class="input-group">
+                    <label for="orderNumber">Номер заказа:</label>
+                    <input id="orderNumber" class="form-input" type="text" name="orderNumber">
+                </div>
+                <div class="input-group">
+                    <label for="photo">Изображение:</label>
+                    <input id="photo" class="form-input" type="file" name="photo" accept="image/*">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" type="submit">Добавить продажу</button>
+                    <a href="/sales/index.html" class="btn-secondary">Вернуться к списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        document.getElementById('create-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Отправка...';
+                const response = await fetch('/add-sale', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Неизвестная ошибка сервера');
+                }
+                window.location.href = '/sales/index.html';
+            } catch (error) {
+                console.error('Ошибка при добавлении продажи:', error);
+                alert(`Ошибка: ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Добавить продажу';
+            }
+        });
+    </script>
+</body>
+</html>

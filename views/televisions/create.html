@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить телевизор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Добавить новый телевизор</h1>
+            <form class="form-container" id="create-form" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="name">Название модели:</label>
+                    <input id="name" class="form-input" type="text" name="name" required>
+                </div>
+                <div class="input-group">
+                    <label for="description">Описание:</label>
+                    <textarea id="description" class="form-input" name="description"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="brand">Бренд:</label>
+                    <input id="brand" class="form-input" type="text" name="brand">
+                </div>
+                <div class="input-group">
+                    <label for="screenType">Тип экрана:</label>
+                    <input id="screenType" class="form-input" type="text" name="screenType">
+                </div>
+                <div class="input-group">
+                    <label for="releaseYear">Год выпуска:</label>
+                    <input id="releaseYear" class="form-input" type="number" name="releaseYear">
+                </div>
+                <div class="input-group">
+                    <label for="isInStock">В наличии:</label>
+                    <input id="isInStock" class="form-input" type="checkbox" name="isInStock" value="true">
+                </div>
+                <div class="input-group">
+                    <label for="price">Цена (в рублях):</label>
+                    <input id="price" class="form-input" type="number" step="0.01" name="price">
+                </div>
+                <div class="input-group">
+                    <label for="photo">Изображение:</label>
+                    <input id="photo" class="form-input" type="file" name="photo" accept="image/*">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" type="submit">Добавить телевизор</button>
+                    <a href="/televisions/index.html" class="btn-secondary">Вернуться к списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        document.getElementById('create-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Отправка...';
+                const response = await fetch('/add-television', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Неизвестная ошибка сервера');
+                }
+                window.location.href = '/televisions/index.html';
+            } catch (error) {
+                console.error('Ошибка при добавлении телевизора:', error);
+                alert(`Ошибка: ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Добавить телевизор';
+            }
+        });
+    </script>
+</body>
+</html>

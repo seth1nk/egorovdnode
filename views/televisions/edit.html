@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать телевизор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Редактировать телевизор</h1>
+            <form class="form-container" id="edit-form" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="name">Название модели:</label>
+                    <input id="name" class="form-input" type="text" name="name" required>
+                </div>
+                <div class="input-group">
+                    <label for="description">Описание:</label>
+                    <textarea id="description" class="form-input" name="description"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="brand">Бренд:</label>
+                    <input id="brand" class="form-input" type="text" name="brand">
+                </div>
+                <div class="input-group">
+                    <label for="screenType">Тип экрана:</label>
+                    <input id="screenType" class="form-input" type="text" name="screenType">
+                </div>
+                <div class="input-group">
+                    <label for="releaseYear">Год выпуска:</label>
+                    <input id="releaseYear" class="form-input" type="number" name="releaseYear">
+                </div>
+                <div class="input-group">
+                    <label for="isInStock">В наличии:</label>
+                    <input id="isInStock" class="form-input" type="checkbox" name="isInStock" value="true">
+                </div>
+                <div class="input-group">
+                    <label for="price">Цена (в рублях):</label>
+                    <input id="price" class="form-input" type="number" step="0.01" name="price">
+                </div>
+                <div class="input-group">
+                    <label for="photo">Изображение:</label>
+                    <input id="photo" class="form-input" type="file" name="photo" accept="image/*">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" type="submit">Сохранить изменения</button>
+                    <a href="/televisions/index.html" class="btn-secondary">Вернуться к списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        async function loadTelevisionData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const televisionId = urlParams.get('id');
+                if (!televisionId) {
+                    throw new Error('ID телевизора не указан');
+                }
+                document.getElementById('edit-form').action = `/edit-television/${televisionId}`;
+                const response = await fetch(`/api/view-television/${televisionId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const television = await response.json();
+                document.getElementById('name').value = television.name || '';
+                document.getElementById('description').value = television.description || '';
+                document.getElementById('brand').value = television.brand || '';
+                document.getElementById('screenType').value = television.screenType || '';
+                document.getElementById('releaseYear').value = television.releaseYear || '';
+                document.getElementById('isInStock').checked = television.isInStock || false;
+                document.getElementById('price').value = television.price || '';
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('content').innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
+            }
+        }
+        window.onload = loadTelevisionData;
+    </script>
+</body>
+</html>

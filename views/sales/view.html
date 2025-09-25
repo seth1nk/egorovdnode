@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр продажи</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Просмотр продажи</h1>
+            <div class="container">
+                <div class="product-info">
+                    <div class="product-image-container" id="product-image"></div>
+                    <div class="info-container">
+                        <p><strong>Имя клиента:</strong> <span id="customerName"></span></p>
+                        <p><strong>Комментарий:</strong> <span id="notes"></span></p>
+                        <p><strong>Адрес доставки:</strong> <span id="deliveryAddress"></span></p>
+                        <p><strong>Способ оплаты:</strong> <span id="paymentMethod"></span></p>
+                        <p><strong>Год продажи:</strong> <span id="saleYear"></span></p>
+                        <p><strong>Подтверждена:</strong> <span id="isConfirmed"></span></p>
+                        <p><strong>Номер заказа:</strong> <span id="orderNumber"></span></p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/sales/index.html" class="btn-secondary">Вернуться к списку</a>
+                    <a id="edit-link" class="btn-primary">Редактировать</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        async function loadSaleData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const saleId = urlParams.get('id');
+                if (!saleId) {
+                    throw new Error('ID продажи не указан');
+                }
+                const response = await fetch(`/api/view-sale/${saleId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const sale = await response.json();
+                document.getElementById('product-image').innerHTML = sale.photo ? `<img class="product-image" src="${sale.photo.replace('/img/', '/images/')}" alt="Sale Photo">` : 'Нет изображения';
+                document.getElementById('customerName').textContent = sale.customerName || 'N/A';
+                document.getElementById('notes').textContent = sale.notes || 'N/A';
+                document.getElementById('deliveryAddress').textContent = sale.deliveryAddress || 'N/A';
+                document.getElementById('paymentMethod').textContent = sale.paymentMethod || 'N/A';
+                document.getElementById('saleYear').textContent = sale.saleYear || 'N/A';
+                document.getElementById('isConfirmed').textContent = sale.isConfirmed ? 'Да' : 'Нет';
+                document.getElementById('orderNumber').textContent = sale.orderNumber || 'N/A';
+                document.getElementById('edit-link').href = `/sales/edit.html?id=${sale.id}`;
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.getElementById('content').innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
+            }
+        }
+        window.onload = loadSaleData;
+    </script>
+</body>
+</html>

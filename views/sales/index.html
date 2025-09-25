@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список продаж</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="app-container">
+            <h1 class="page-title">Список продаж</h1>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="/sales/create.html" class="btn-primary">Добавить продажу</a>
+            </div>
+            <div class="table-container">
+                <table class="styled-table sales-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя клиента</th>
+                            <th>Комментарий</th>
+                            <th>Адрес доставки</th>
+                            <th>Способ оплаты</th>
+                            <th>Год продажи</th>
+                            <th>Подтверждена</th>
+                            <th>Номер заказа</th>
+                            <th>Изображение</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-table-body"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+    <script src="/js/pagination.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/header.js"></script>
+    <script>
+        async function loadSales(page = 1) {
+            try {
+                const response = await fetch(`/api/sales?page=${page}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (!data.sales || !Array.isArray(data.sales)) {
+                    throw new Error('Данные о продажах отсутствуют или некорректны');
+                }
+                const sales = data.sales;
+                const totalPages = data.totalPages || 1;
+                const currentPage = data.currentPage || page;
+                const tbody = document.getElementById('sales-table-body');
+                tbody.innerHTML = '';
+                if (sales.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" class="no-data">Нет продаж</td></tr>';
+                } else {
+                    sales.forEach((item, index) => {
+                        const row = `
+                            <tr>
+                                <td>${index + 1 + (currentPage - 1) * 10}</td>
+                                <td>${item.customerName || 'N/A'}</td>
+                                <td>${item.notes || 'N/A'}</td>
+                                <td>${item.deliveryAddress || 'N/A'}</td>
+                                <td>${item.paymentMethod || 'N/A'}</td>
+                                <td>${item.saleYear || 'N/A'}</td>
+                                <td>${item.isConfirmed ? 'Да' : 'Нет'}</td>
+                                <td>${item.orderNumber || 'N/A'}</td>
+                                <td>${item.photo ? `<img class="product-image" src="${item.photo.replace('/img/', '/images/')}" alt="Sale Photo">` : 'N/A'}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/sales/view.html?id=${item.id}" class="action-btn view-icon"><i class="fas fa-eye"></i></a>
+                                        <a href="/sales/edit.html?id=${item.id}" class="action-btn edit-icon"><i class="fas fa-pencil-alt"></i></a>
+                                        <button class="action-btn delete-btn delete-icon" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                }
+                generatePagination(currentPage, totalPages, 'loadSales');
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const id = button.getAttribute('data-id');
+                        if (!confirm('Вы уверены, что хотите удалить эту продажу?')) {
+                            return;
+                        }
+                        try {
+                            const response = await fetch(`/delete-sale/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                            if (!response.ok) {
+                                const errorText = await response.json();
+                                throw new Error(`Ошибка сервера: ${response.status} ${errorText.error}`);
+                            }
+                            loadSales(currentPage);
+                        } catch (error) {
+                            console.error('Ошибка при удалении продажи:', error);
+                            alert(`Ошибка: ${error.message}`);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки продаж:', error);
+                const tbody = document.getElementById('sales-table-body');
+                tbody.innerHTML = '<tr><td colspan="10">Ошибка загрузки данных: ' + error.message + '</td></tr>';
+            }
+        }
+        window.onload = () => loadSales();
+    </script>
+</body>
+</html>
